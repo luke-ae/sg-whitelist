@@ -1,0 +1,4 @@
+
+type Mutation {
+   version(version: String!): String
+}

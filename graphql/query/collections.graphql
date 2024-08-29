@@ -1,0 +1,10 @@
+query Collections($offset: Int, $limit: Int) {
+    collections(offset: $offset, limit: $limit) {
+      collections {
+        collectionAddr
+        name
+        image
+      }
+    }
+  }
+  

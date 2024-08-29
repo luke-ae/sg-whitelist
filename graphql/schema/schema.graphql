@@ -1,0 +1,1131 @@
+input AttributeFilter {
+  operator: EventAttributeFilterOperator
+  filters: [DataFilter!]!
+}
+
+input AttributeMessageFilter {
+  operator: EventAttributeFilterOperator
+  filters: [MessageDataFilter!]!
+}
+
+enum AuctionEndPreset {
+  NEXT_1_HOUR
+  NEXT_6_HOURS
+  NEXT_24_HOURS
+  NEXT_48_HOURS
+  NEXT_7_DAYS
+}
+
+type Block {
+  # Internal UUID, might change between when the indexer is reran.
+  id: ID!
+  blockHeight: Int!
+  createdAt: DateTime!
+}
+
+type BlockConnection {
+  edges: [BlockEdge!]!
+  pageInfo: PageInfo!
+}
+
+type BlockEdge {
+  node: Block!
+  cursor: String!
+}
+
+enum BlockSortBy {
+  BLOCK_HEIGHT_ASC
+  BLOCK_HEIGHT_DESC
+}
+
+# Sort
+enum CollectionSortBy {
+  TOKENS_COUNT_ASC
+  TOKENS_COUNT_DESC
+  MINTED_AT_ASC
+  MINTED_AT_DESC
+  VOLUME_24H_DESC
+  VOLUME_7D_DESC
+}
+
+input ContractDataFilter {
+  type: String!
+  name: String!
+  value: String!
+  operator: ContractDataFilterOperator
+}
+
+enum ContractDataFilterOperator {
+  EQUAL
+  GREATER
+  GREATER_OR_EQUAL
+  LOWER
+  LOWER_OR_EQUAL
+}
+
+# Contract filter
+input ContractFilter {
+  # Contract type: example: 'crates.io:sg-721`
+  contractType: String!
+  events: [ContractFilterEvent!]!
+}
+
+# Event name and optional action
+input ContractFilterEvent {
+  name: String!
+  action: String
+}
+
+enum ContractSortBy {
+  CREATED_AT_DESC
+  CREATED_AT_ASC
+}
+
+input DataFilter {
+  name: String!
+  value: String!
+  operator: EventDataOperator
+}
+
+enum DateGranularity {
+  HOUR
+  FOUR_HOURS
+  TWELVE_HOURS
+  DAY
+  WEEK
+  MONTH
+  QUARTER
+  YEAR
+}
+
+enum DatePreset {
+  LAST_24_HOURS
+  LAST_7_DAYS
+  LAST_30_DAYS
+  LAST_90_DAYS
+  LAST_YEAR
+  ALL_TIME
+}
+
+input DateRange {
+  startDate: String
+  endDate: String
+}
+
+# Implement the DateTime<Utc> scalar
+#
+# The input/output is a string in RFC3339 format.
+scalar DateTime
+
+scalar Decimal
+
+type Event {
+  # Internal UUID, might change between when the indexer is reran.
+  id: ID!
+
+  # Event name
+  eventName: String!
+
+  # Event action. Some event don't have any
+  action: String
+
+  # Transaction Hash
+  txHash: String
+
+  # Contract Address
+  contractAddr: String
+
+  # Contract Code ID
+  contractCodeId: String
+
+  # Set the the block time, as UTC without timezone
+  createdAt: DateTime!
+
+  # Contract Type
+  contractType: String
+
+  # Contract Attributes
+  contractInfo: JSONObject
+    @deprecated(
+      reason: "Field contract_info is deprecated, use contract { contract_info } instead"
+    )
+
+  # False if this event has been superseded by another event
+  isValid: Boolean!
+  blockHeight: Int!
+  blockTxIdx: Int!
+  blockMessageIdx: Int!
+  blockEventIdx: Int!
+  location: Int!
+
+  # Is this event expired. An event can be expired but still valid on chain, for example a bid
+  # might be expired but still valid on chain and STARS still be locked. User will have to
+  # remove that bid to unlock those STARS, this event will then become invalid (is_valid set to
+  # false)
+  expired: Boolean!
+  data: JSON!
+  metadata: JSON!
+  transaction: Transaction
+  message: Message
+  contract: contract
+
+  # Attribute owner if any
+  owner: address
+
+  # Attribute sender if any
+  sender: address
+
+  # Attribute recipient if any
+  recipient: address
+
+  # Attribute bidder if any
+  bidder: address
+
+  # Attribute buyer if any
+  buyer: address
+
+  # Attribute seller if any
+  seller: address
+
+  # Attribute operator if any
+  operator: address
+
+  # Price
+  price: Price @deprecated(reason: "Use the data denoms field instead")
+
+  # Bid Price
+  bidPrice: Price @deprecated(reason: "Use the metadata denoms field instead")
+}
+
+# What operator should be applied
+enum EventAttributeFilterOperator {
+  AND
+  OR
+}
+
+type EventConnection {
+  edges: [EventEdge!]!
+  pageInfo: PageInfo!
+}
+
+# What operation should be evaluated
+enum EventDataOperator {
+  EQUAL
+  GREATER
+  GREATER_OR_EQUAL
+  LOWER
+  LOWER_OR_EQUAL
+}
+
+type EventEdge {
+  node: Event!
+  cursor: String!
+}
+
+enum EventSortBy {
+  BLOCK_HEIGHT_ASC
+  BLOCK_HEIGHT_DESC
+}
+
+input EventsFilter {
+  operator: EventAttributeFilterOperator
+  events: [ContractFilterEvent!]!
+}
+
+# Ready to use filters to get specific kind of events
+enum Filter {
+  # Any event related to sales
+  SALES
+
+  # Any event related to name sales
+  NAME_SALES
+
+  # Any event related to mints
+  MINTS
+
+  # Any event related to asks
+  ASKS
+
+  # Any event related to name asks
+  NAME_ASKS
+
+  # Any event related to bids
+  BIDS
+
+  # Any event related to name bids
+  NAME_BIDS
+
+  # Any event related to airdrops
+  AIRDROPS
+
+  # Any event related to collection bids
+  COLLECTION_BIDS
+
+  # Any event related to received offer on owned NFT, use with `for_addresses`
+  RECEIVED_OFFERS_ON_OWNED_NFT
+
+  # Any event related to received offer on owned names, use with `for_addresses`
+  RECEIVED_OFFERS_ON_OWNED_NAMES
+
+  # Any event related to a given name, use with `attribute_filters`
+  NAME_EVENTS
+
+  # Any filtered event related to a given name, use with `attribute_filters`
+  FILTERED_NAME_EVENTS
+
+  # Any event related to sent name offers, use with `for_addresses`
+  SENT_NAME_OFFERS
+
+  # Any event related to a given NFT, use with `for_token`
+  TOKEN_METADATAS
+}
+
+# A scalar that can represent any JSON value.
+scalar JSON
+
+# A scalar that can represent any JSON Object value.
+scalar JSONObject
+
+type Message {
+  # Internal UUID, might change between when the indexer is reran.
+  id: ID!
+
+  # Type URL
+  typeUrl: String!
+
+  # Cosmwasm Method
+  cosmwasmMethod: String
+
+  # Message Attributes
+  data: JSON!
+  blockHeight: Int!
+
+  # Transaction Idx
+  # Message Idx within the transaction
+  blockTxIdx: Int!
+  idx: Int!
+  createdAt: DateTime!
+  contract: contract
+  transaction: Transaction
+
+  # Careful: this is only returning the last 100 events
+  events: [Event!]
+}
+
+type MessageConnection {
+  edges: [MessageEdge!]!
+  pageInfo: PageInfo!
+}
+
+input MessageDataFilter {
+  path: String!
+  value: String!
+  operator: EventDataOperator
+}
+
+type MessageEdge {
+  node: Message!
+  cursor: String!
+}
+
+enum MessageSortBy {
+  BLOCK_HEIGHT_ASC
+  BLOCK_HEIGHT_DESC
+}
+
+# ISO 8601 combined date and time without timezone.
+#
+# # Examples
+#
+# * `2015-07-01T08:59:60.123`,
+scalar NaiveDateTime
+
+enum NameSortBy {
+  MINTED_AT_DESC
+  MINTED_AT_ASC
+  NAME_DESC
+  NAME_ASC
+  OFFERS_DESC
+  OFFERS_ASC
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  startCursor: String
+  hasPreviousPage: Boolean!
+}
+
+type Price {
+  # On chain denom specified by the chain, null if none specified
+  denom: String
+
+  # Detected base denom, defaults to chain denom, null if equal to `denom`
+  baseDenom: String
+
+  # Prefixed denom. For IBC denoms includes channels.
+  prefixedDenom: String
+  amount: String!
+
+  # USD value at block time, if any, taken from coingecko
+  usd: PriceWithRate
+  currentUsd: PriceWithRate!
+}
+
+input PriceFilter {
+  min: Decimal
+  max: Decimal
+}
+
+type PriceWithRate {
+  denom: String!
+  amount: Decimal!
+  rate: Decimal!
+  coingeckoId: String
+  fromDenom: String!
+  tracing: String
+}
+
+type Query {
+  # Fetch a collection by its address
+  collection(
+    # Collection address
+    collectionAddr: String!
+  ): collection
+
+  # Fetch collections
+  collections(
+    # Offset based pagination
+    offset: Int
+
+    # Offset based pagination
+    limit: Int
+    sortBy: CollectionSortBy
+
+    # Filter collections for which this address owns at least one token
+    tokenOwnerAddr: String
+
+    # Filter collections created by this addr
+    creatorAddr: String
+
+    # Filter for blocked collections if true
+    isBlocked: Boolean! = false
+  ): collection_node!
+  token(collectionAddr: String!, tokenId: String!): token
+  tokens(
+    # use filter_by_collection_addrs instead
+    collectionAddr: String
+
+    # NFT owner
+    ownerAddr: String
+
+    # Seller address
+    sellerAddr: String
+
+    # Offset based pagination
+    offset: Int
+
+    # Offset based pagination
+    limit: Int
+    sortBy: TokenSortBy
+    filterByTraits: [TraitFilter!]
+    filterForSale: SaleType
+    filterByPrices: PriceFilter
+    filterByCollectionAddrs: [String!]
+    filterAuctionEndByPreset: AuctionEndPreset
+    filterAuctionEndByDate: DateRange
+
+    # Include unminted tokens
+    includeUnminted: Boolean! = false
+
+    # Include burned tokens
+    includeBurned: Boolean! = false
+
+    # Include blocked collections
+    includeBlocked: Boolean! = false
+  ): token_node!
+
+  # Fetch all traits available for a collection
+  collectionTraits(
+    # Collection address
+    collectionAddr: String!
+
+    # Sale type filter
+    filterForSale: SaleType
+  ): [collection_trait!]!
+
+  # Name by name
+  name(
+    # Name to fetch
+    name: String!
+  ): name
+
+  # Names
+  names(
+    # Offset based pagination
+    offset: Int
+
+    # Offset based pagination
+    limit: Int
+    sortBy: NameSortBy
+
+    # Filter based on owner address
+    ownerAddr: String
+
+    # Filter based on associated address
+    associatedAddr: String
+
+    # Filter based on name records
+    filterByRecords: [RecordFilter!]
+  ): name_node!
+  events(
+    # Cursor based pagination
+    after: String
+
+    # Cursor based pagination
+    before: String
+
+    # Cursor based pagination
+    first: Int
+
+    # Cursor based pagination
+    last: Int
+
+    # Filter events. If a filter isn't available, ask us or use contract filters which is more flexible
+    filter: Filter
+
+    # Filter events based on contract, name, or action
+    contractFilters: [ContractFilter!]
+
+    # Filter events based on name, or action
+    eventsFilters: EventsFilter
+
+    # A list of data filters
+    dataFilters: [DataFilter!]
+
+    # Attribute filters
+    attributeFilters: AttributeFilter
+
+    # Filter based on event validity
+    isValid: Boolean
+    sortBy: EventSortBy
+
+    # This is only used for filters: SentNameOffers, ReceivedOffersOnOwnedNames, ReceivedOffersOnOwnedNFT
+    forAddresses: [String!]
+
+    # This is only used for filters: TokenMetadatas
+    forToken: TokenInput
+
+    # Filter based on contract address
+    forContractAddrs: [String!]
+  ): EventConnection!
+
+  # Contract
+  contract(
+    # Contract address
+    address: String!
+  ): contract
+
+  # Contracts
+  contracts(
+    # Offset based pagination
+    offset: Int
+
+    # Offset based pagination
+    limit: Int
+    sortBy: ContractSortBy
+
+    # A list of data filters
+    dataFilters: [ContractDataFilter!]
+
+    # A list of contract types
+    contractTypes: [String!]
+  ): contract_node!
+
+  # Fetch collection addresses and count of tokens owned for an address
+  ownedCollections(
+    # Offset based pagination
+    offset: Int
+
+    # Offset based pagination
+    limit: Int
+
+    # Owner address
+    ownerAddr: String
+
+    # Seller address for live auctions
+    sellerAddr: String
+
+    # Filter tokens by sale type
+    filterForSale: SaleType
+
+    # Include blocked collections
+    includeBlocked: Boolean! = false
+  ): owned_collections_node!
+
+  # Fetch historical sales stats for Stargaze or for a specific collection
+  salesStats(
+    # Offset based pagination
+    offset: Int
+
+    # Offset based pagination
+    limit: Int
+
+    # Collection sg721 address
+    collectionAddr: String
+
+    # Granularity for grouping time periods, defaults to day
+    granularity: DateGranularity! = FOUR_HOURS
+
+    # Date preset for stats between now and a previous time
+    datePresetFilter: DatePreset
+
+    # Date filter with a start time and end time. Supports formats 'YYYY-MM-DD' and 'YYYY-MM-DDTHH:MM:SS'
+    dateRangeFilter: DateRange
+  ): sales_stats_node!
+
+  # Fetch NFT sales
+  sales(
+    # Offset based pagination
+    offset: Int
+
+    # Offset based pagination, max 500
+    limit: Int
+
+    # Filter by one or more collection addresses
+    filterByCollectionAddrs: [String!]
+
+    # Date preset for sales between now and a previous time
+    datePresetFilter: DatePreset
+
+    # Date filter with a start time and end time. Supports formats 'YYYY-MM-DD' and 'YYYY-MM-DDTHH:MM:SS'
+    dateRangeFilter: DateRange
+
+    # Sorting options
+    sortBy: SalesSortBy
+
+    # Filter sales by sale type
+    filterBySaleType: [SalesSaleType!]
+  ): sales_node!
+  transaction(
+    # TX Hash
+    hash: String!
+
+    # Block height
+    blockHeight: Int!
+  ): Transaction
+  transactions(
+    # Cursor based pagination
+    after: String
+
+    # Cursor based pagination
+    before: String
+
+    # Cursor based pagination
+    first: Int
+
+    # Cursor based pagination
+    last: Int
+
+    # Filter for those transaction hashes.
+    transactionHashes: [String!]
+
+    # Filter for those block heights.
+    blockHeights: [Int!]
+    sortBy: TransactionSortBy
+  ): TransactionConnection!
+  messages(
+    # Cursor based pagination
+    after: String
+
+    # Cursor based pagination
+    before: String
+
+    # Cursor based pagination
+    first: Int
+
+    # Cursor based pagination
+    last: Int
+
+    # Filter for those type urls.
+    typeUrls: [String!]
+
+    # Filter for those cosmwasm method.
+    cosmwasmMethods: [String!]
+
+    # Attribute filters
+    attributeFilters: AttributeMessageFilter
+
+    # Filter for those block heights.
+    blockHeights: [Int!]
+    sortBy: MessageSortBy
+  ): MessageConnection!
+  blocks(
+    # Cursor based pagination
+    after: String
+
+    # Cursor based pagination
+    before: String
+
+    # Cursor based pagination
+    first: Int
+
+    # Cursor based pagination
+    last: Int
+
+    # Filter for those block heights.
+    blockHeights: [Int!]
+    sortBy: BlockSortBy
+  ): BlockConnection!
+
+  # IBC Client
+  ibcClient(
+    # IBC Client ID
+    ibcClientId: String!
+  ): ibc_client
+}
+
+# Filter on records, example: `name: twitter, value: fabienpenso`
+input RecordFilter {
+  name: String!
+  value: String!
+  verified: Boolean
+}
+
+enum SaleType {
+  FIXED_PRICE
+  AUCTION
+  LIVE_AUCTION
+  ANY
+  UNLISTED
+  LISTED
+  EXPIRED
+}
+
+enum SalesSaleType {
+  FIXED_PRICE
+  AUCTION
+  OFFER
+  COLLECTION_OFFER
+}
+
+enum SalesSortBy {
+  SALE_TIME_DESC
+  SALE_TIME_ASC
+  STARS_PRICE_DESC
+  STARS_PRICE_ASC
+  USD_PRICE_DESC
+  USD_PRICE_ASC
+  RARITY_DESC
+  RARITY_ASC
+  TOKEN_ID_ASC
+  TOKEN_ID_DESC
+}
+
+input TokenInput {
+  collectionAddr: String!
+  tokenId: String!
+}
+
+enum TokenSortBy {
+  RARITY_DESC
+  RARITY_ASC
+  PRICE_DESC
+  PRICE_ASC
+  LISTING_TYPE
+  TOKEN_ID_ASC
+  TOKEN_ID_DESC
+  NAME_ASC
+  NAME_DESC
+  COLLECTION_ADDR_TOKEN_ID_ASC
+  MINTED_ASC
+  MINTED_DESC
+  LIVE_AUCTION_END_TIME_DESC
+  LIVE_AUCTION_END_TIME_ASC
+  LIVE_AUCTION_START_TIME_DESC
+  LIVE_AUCTION_START_TIME_ASC
+  LIVE_AUCTION_HIGHEST_BID_DESC
+  LIVE_AUCTION_HIGHEST_BID_ASC
+  LISTED_ASC
+  LISTED_DESC
+  ACQUIRED_ASC
+  ACQUIRED_DESC
+}
+
+input TraitFilter {
+  name: String!
+  value: String!
+}
+
+type Transaction {
+  # Internal UUID, might change between when the indexer is reran.
+  id: ID!
+
+  # Transaction Hash
+  hash: String!
+  createdAt: DateTime!
+  memo: String
+  code: Int!
+  errorMessage: String
+  gasWanted: Int!
+  gasUsed: Int!
+  blockHeight: Int!
+  idx: Int!
+
+  # Careful: this is only returning the last 100 events
+  events: [Event!]
+
+  # Careful: this is only returning the last 100 messages
+  messages: [Message!]
+}
+
+type TransactionConnection {
+  edges: [TransactionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type TransactionEdge {
+  node: Transaction!
+  cursor: String!
+}
+
+enum TransactionSortBy {
+  BLOCK_HEIGHT_ASC
+  BLOCK_HEIGHT_DESC
+}
+
+# A UUID is a unique 128-bit number, stored as 16 octets. UUIDs are parsed as
+# Strings within GraphQL. UUIDs are used to assign unique identifiers to
+# entities without requiring a central allocating authority.
+#
+# # References
+#
+# * [Wikipedia: Universally Unique Identifier](http://en.wikipedia.org/wiki/Universally_unique_identifier)
+# * [RFC4122: A Universally Unique IDentifier (UUID) URN Namespace](http://tools.ietf.org/html/rfc4122)
+scalar UUID
+
+type address {
+  addr: String!
+
+  # the associated name, if any
+  name: name
+}
+
+type collection {
+  # Internal UUID, might change between when the indexer is reran.
+  id: ID!
+
+  # Collection address
+  collectionAddr: String!
+
+  # When was this collection created at.
+  createdAt: DateTime!
+    @deprecated(reason: "Field created_at is deprecated, use minted_at instead")
+
+  # When was this collection minted on chain. UTC without timezone
+  mintedAt: DateTime
+
+  # Main image
+  image: String!
+
+  # Name
+  name: String!
+
+  # Description
+  description: String!
+
+  # How many tokens this collection has
+  tokensCount: Int
+
+  # How many tokens this collection has for the given owner when called through
+  # OwnedCollections
+  ownerTokensCount: Int
+
+  # Website
+  website: String
+
+  # Creator address
+  createdByAddr: String!
+
+  # Is this collection manually blocked
+  blocked: Boolean!
+
+  # The floor price is the lowest price for any currently for sale item in the collection.
+  # Returned as STARS.
+  floorPrice: Int
+
+  # The address that created this collection
+  createdBy: address!
+  imageObject: image
+  ownersCount: Int
+
+  # Owners for this collection
+  owners(
+    # Offset based pagination
+    offset: Int
+
+    # Offset based pagination
+    limit: Int
+  ): collection_owners!
+}
+
+type collection_node {
+  offset: Int!
+  limit: Int!
+  total: Int!
+  collections: [collection!]!
+}
+
+type collection_owner {
+  count: Int!
+  owner: address!
+}
+
+type collection_owners {
+  totalCount: Int!
+  owners: [collection_owner!]!
+}
+
+type collection_token_count {
+  collectionAddr: String!
+  tokenCount: Int!
+}
+
+type collection_trait {
+  name: String!
+  values: [collection_trait_value!]!
+}
+
+type collection_trait_value {
+  value: String!
+  rarityPercent: Float
+  numTokens: Int!
+  numTokensForSale: Int!
+  traitFloorPrice: Int
+}
+
+type contract {
+  contractAddr: String!
+  contractType: String!
+  contractCodeId: String
+  contractVersion: String
+  contractLabel: String
+  blockHeight: Int!
+  createdAt: NaiveDateTime!
+  updatedAt: NaiveDateTime!
+  lastErrorAt: NaiveDateTime
+  blocked: Boolean!
+  createdMessageId: UUID
+  contractInfo: JSONObject!
+}
+
+type contract_node {
+  offset: Int!
+  limit: Int!
+  total: Int!
+  contracts: [contract!]!
+}
+
+type ibc_client {
+  clientId: String!
+  clientType: String!
+  counterpartyChainId: String!
+  signer: String!
+  createdAt: NaiveDateTime!
+  updatedAt: NaiveDateTime!
+  blockHeight: Int!
+}
+
+type image {
+  url: String!
+  contentType: String
+  contentLength: Int
+  width: Int
+  height: Int
+}
+
+type name {
+  id: ID!
+  contractAddr: String!
+  name: String!
+  ownerAddr: String!
+  imageUrl: String
+  associatedAddr: String
+  askPrice: Price
+  forSale: Boolean!
+  mintedAt: DateTime
+  highestOffer: Decimal
+  records: [name_record!]
+  highestOfferEvent: Event
+}
+
+type name_node {
+  offset: Int!
+  limit: Int!
+  total: Int!
+  names: [name!]!
+}
+
+type name_record {
+  id: ID!
+  contractAddr: String!
+  name: String!
+  recordName: String!
+  recordValue: String!
+  verified: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type owned_collections_node {
+  offset: Int!
+  limit: Int!
+  total: Int!
+  collections: [collection!]!
+  ownedCollectionsTokenCount: [collection_token_count!]!
+    @deprecated(
+      reason: "Field owned_collections_token_count is deprecated, use collections instead"
+    )
+}
+
+type sale {
+  # Event Name
+  saleType: String!
+
+  # Transaction Hash
+  txHash: String
+
+  # Block Height
+  blockHeight: Int!
+
+  # Collection Address
+  collectionAddr: String!
+
+  # Token ID
+  tokenId: String!
+
+  # Sale Price in STARS
+  salePriceStars: Int!
+
+  # Sale Price in USD
+  salePriceUsd: Decimal!
+
+  # Seller Address
+  seller: String
+
+  # Buyer Address
+  buyer: String
+
+  # Rarity Order
+  rarityOrder: Int
+  createdAt: DateTime!
+}
+
+type sales_node {
+  offset: Int!
+  limit: Int!
+  total: Int!
+  sales: [sale!]!
+}
+
+type sales_stats {
+  timePeriod: NaiveDateTime
+
+  # Volume in STARS
+  volumeStars: Decimal!
+
+  # Volume in USD
+  volumeUsd: Decimal!
+
+  # Sales count
+  salesCount: Int!
+
+  # Average sale price in STARS
+  avgPriceStars: Decimal!
+
+  # Average sale price in USD
+  avgPriceUsd: Decimal!
+}
+
+type sales_stats_node {
+  offset: Int!
+  limit: Int!
+  total: Int!
+  salesStats: [sales_stats!]!
+
+  # Total values for the selected time period
+  statsTotals: sales_stats_totals!
+}
+
+type sales_stats_totals {
+  volumeStars: Decimal!
+  volumeUsd: Decimal!
+  salesCount: Int!
+  avgPriceStars: Decimal!
+  avgPriceUsd: Decimal!
+}
+
+type token {
+  id: ID!
+  collectionAddr: String!
+  tokenId: String!
+  createdAt: DateTime!
+  ownerAddr: String
+  name: String
+  description: String
+  forSale: Boolean!
+  imageUrl: String
+  animationUrl: String
+  rarityOrder: Int
+  rarityScore: Decimal
+  price: Price
+  priceExpiresAt: DateTime
+  saleType: String
+  mintedAt: DateTime
+  liveAuctionStartTime: DateTime
+  liveAuctionEndTime: DateTime
+  liveAuctionHighestBid: Price
+  listedAt: DateTime
+  sellerAddr: String
+  isEscrowed: Boolean!
+  escrowContractAddr: String
+  escrowContractType: String
+  traits: [token_trait!]
+  liveAuctionEvent: Event
+  highestLiveAuctionBidEvent: Event
+  image: image
+  animation: image
+
+  # The address that owns this token
+  owner: address
+
+  # The latest sale
+  lastSale: Event
+
+  # The highest non-expired valid bid for this token
+  highestBidEvent: Event
+
+  # The highest non-expired valid collection bid for the collection attached to this token
+  highestCollectionBidEvent: Event
+
+  # The highest non-expired valid bid for this token
+  highestBid: Decimal
+
+  # The highest non-expired valid collection bid for the collection attached to this token
+  highestCollectionBid: Decimal
+}
+
+type token_node {
+  offset: Int!
+  limit: Int!
+  total: Int!
+  tokens: [token!]!
+}
+
+type token_trait {
+  name: String!
+  value: String!
+  rarityPercent: Float
+  rarityScore: Float
+  rarity: Float
+}
