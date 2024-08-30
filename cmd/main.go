@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 
@@ -16,6 +17,11 @@ import (
 
 func main() {
 	r := chi.NewRouter()
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8888"
+	}
 
 	cache, err := ristretto.NewCache(&ristretto.Config{
 		NumCounters: 1e7,     // number of keys to track frequency of (10M).
@@ -102,10 +108,10 @@ func main() {
 
 	})
 
-	slog.Info("starting server on port 42069...")
-	err = http.ListenAndServe(":42069", r)
+	slog.Info(fmt.Sprintf("starting server on port %v...", port))
+	err = http.ListenAndServe(fmt.Sprintf(":%v", port), r)
 	if err != nil {
-		panic("error starting server on port 42069")
+		panic(fmt.Sprintf("error starting server on port %v", port))
 	}
 
 }
