@@ -43,3 +43,7 @@ type WhitelistHasMemberQueryResponse struct {
 type WhitelistHasMember struct {
 	HasMember bool `json:"has_member"`
 }
+
+type Health struct {
+	Status string `json:"status"`
+}

@@ -31,6 +31,9 @@ func main() {
 	gql := NewGQLClient(os.Getenv("CONSTELLATIONS_GRAPHQL_URL"), c, cache)
 
 	r.Get("/api/v1beta/on_whitelist/{wallet}", gql.WhitelistedCollections)
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		WriteJSON(w, http.StatusOK, Health{Status: "healthy"})
+	})
 
 	slog.Info(fmt.Sprintf("starting server on port %v...", port))
 
