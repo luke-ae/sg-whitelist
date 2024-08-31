@@ -10,7 +10,7 @@ import (
 )
 
 type ConstellationsGraphqlClient interface {
-	Collections(ctx context.Context, offset *int64, limit *int64, interceptors ...clientv2.RequestInterceptor) (*Collections, error)
+	LatestCollections(ctx context.Context, offset int, limit int, interceptors ...clientv2.RequestInterceptor) (*LatestCollections, error)
 }
 
 type Client struct {
@@ -21,72 +21,88 @@ func NewClient(cli *http.Client, baseURL string, options *clientv2.Options, inte
 	return &Client{Client: clientv2.NewClient(cli, baseURL, options, interceptors...)}
 }
 
-type Collections_Collections_Collections struct {
-	CollectionAddr string "json:\"collectionAddr\" graphql:\"collectionAddr\""
-	Name           string "json:\"name\" graphql:\"name\""
-	Image          string "json:\"image\" graphql:\"image\""
+type LatestCollections_Collections_Collections struct {
+	CollectionAddr string  "json:\"collectionAddr\" graphql:\"collectionAddr\""
+	Name           string  "json:\"name\" graphql:\"name\""
+	Image          string  "json:\"image\" graphql:\"image\""
+	Description    string  "json:\"description\" graphql:\"description\""
+	MintedAt       *string "json:\"mintedAt,omitempty\" graphql:\"mintedAt\""
 }
 
-func (t *Collections_Collections_Collections) GetCollectionAddr() string {
+func (t *LatestCollections_Collections_Collections) GetCollectionAddr() string {
 	if t == nil {
-		t = &Collections_Collections_Collections{}
+		t = &LatestCollections_Collections_Collections{}
 	}
 	return t.CollectionAddr
 }
-func (t *Collections_Collections_Collections) GetName() string {
+func (t *LatestCollections_Collections_Collections) GetName() string {
 	if t == nil {
-		t = &Collections_Collections_Collections{}
+		t = &LatestCollections_Collections_Collections{}
 	}
 	return t.Name
 }
-func (t *Collections_Collections_Collections) GetImage() string {
+func (t *LatestCollections_Collections_Collections) GetImage() string {
 	if t == nil {
-		t = &Collections_Collections_Collections{}
+		t = &LatestCollections_Collections_Collections{}
 	}
 	return t.Image
 }
-
-type Collections_Collections struct {
-	Collections []*Collections_Collections_Collections "json:\"collections\" graphql:\"collections\""
+func (t *LatestCollections_Collections_Collections) GetDescription() string {
+	if t == nil {
+		t = &LatestCollections_Collections_Collections{}
+	}
+	return t.Description
+}
+func (t *LatestCollections_Collections_Collections) GetMintedAt() *string {
+	if t == nil {
+		t = &LatestCollections_Collections_Collections{}
+	}
+	return t.MintedAt
 }
 
-func (t *Collections_Collections) GetCollections() []*Collections_Collections_Collections {
+type LatestCollections_Collections struct {
+	Collections []*LatestCollections_Collections_Collections "json:\"collections\" graphql:\"collections\""
+}
+
+func (t *LatestCollections_Collections) GetCollections() []*LatestCollections_Collections_Collections {
 	if t == nil {
-		t = &Collections_Collections{}
+		t = &LatestCollections_Collections{}
 	}
 	return t.Collections
 }
 
-type Collections struct {
-	Collections Collections_Collections "json:\"collections\" graphql:\"collections\""
+type LatestCollections struct {
+	Collections LatestCollections_Collections "json:\"collections\" graphql:\"collections\""
 }
 
-func (t *Collections) GetCollections() *Collections_Collections {
+func (t *LatestCollections) GetCollections() *LatestCollections_Collections {
 	if t == nil {
-		t = &Collections{}
+		t = &LatestCollections{}
 	}
 	return &t.Collections
 }
 
-const CollectionsDocument = `query Collections ($offset: Int, $limit: Int) {
-	collections(offset: $offset, limit: $limit) {
+const LatestCollectionsDocument = `query LatestCollections ($offset: Int!, $limit: Int!) {
+	collections(offset: $offset, limit: $limit, sortBy: MINTED_AT_DESC) {
 		collections {
 			collectionAddr
 			name
 			image
+			description
+			mintedAt
 		}
 	}
 }
 `
 
-func (c *Client) Collections(ctx context.Context, offset *int64, limit *int64, interceptors ...clientv2.RequestInterceptor) (*Collections, error) {
+func (c *Client) LatestCollections(ctx context.Context, offset int, limit int, interceptors ...clientv2.RequestInterceptor) (*LatestCollections, error) {
 	vars := map[string]any{
 		"offset": offset,
 		"limit":  limit,
 	}
 
-	var res Collections
-	if err := c.Client.Post(ctx, "Collections", CollectionsDocument, &res, vars, interceptors...); err != nil {
+	var res LatestCollections
+	if err := c.Client.Post(ctx, "LatestCollections", LatestCollectionsDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -98,5 +114,5 @@ func (c *Client) Collections(ctx context.Context, offset *int64, limit *int64, i
 }
 
 var DocumentOperationNames = map[string]string{
-	CollectionsDocument: "Collections",
+	LatestCollectionsDocument: "LatestCollections",
 }

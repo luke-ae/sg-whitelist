@@ -10,7 +10,7 @@ type Queries struct {
 }
 
 type MinterAddr struct {
-	Minter string `json:"minterAddr,omitempty"`
+	MinterAddr string `json:"minterAddr,omitempty"`
 }
 
 type ConfigQuery struct {

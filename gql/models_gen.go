@@ -20,7 +20,7 @@ type AttributeMessageFilter struct {
 
 type Block struct {
 	ID          string `json:"id"`
-	BlockHeight int64  `json:"blockHeight"`
+	BlockHeight int    `json:"blockHeight"`
 	CreatedAt   string `json:"createdAt"`
 }
 
@@ -73,11 +73,11 @@ type Event struct {
 	ContractType    *string      `json:"contractType,omitempty"`
 	ContractInfo    *string      `json:"contractInfo,omitempty"`
 	IsValid         bool         `json:"isValid"`
-	BlockHeight     int64        `json:"blockHeight"`
-	BlockTxIdx      int64        `json:"blockTxIdx"`
-	BlockMessageIdx int64        `json:"blockMessageIdx"`
-	BlockEventIdx   int64        `json:"blockEventIdx"`
-	Location        int64        `json:"location"`
+	BlockHeight     int          `json:"blockHeight"`
+	BlockTxIdx      int          `json:"blockTxIdx"`
+	BlockMessageIdx int          `json:"blockMessageIdx"`
+	BlockEventIdx   int          `json:"blockEventIdx"`
+	Location        int          `json:"location"`
 	Expired         bool         `json:"expired"`
 	Data            string       `json:"data"`
 	Metadata        string       `json:"metadata"`
@@ -115,9 +115,9 @@ type Message struct {
 	TypeURL        string       `json:"typeUrl"`
 	CosmwasmMethod *string      `json:"cosmwasmMethod,omitempty"`
 	Data           string       `json:"data"`
-	BlockHeight    int64        `json:"blockHeight"`
-	BlockTxIdx     int64        `json:"blockTxIdx"`
-	Idx            int64        `json:"idx"`
+	BlockHeight    int          `json:"blockHeight"`
+	BlockTxIdx     int          `json:"blockTxIdx"`
+	Idx            int          `json:"idx"`
 	CreatedAt      string       `json:"createdAt"`
 	Contract       *Contract    `json:"contract,omitempty"`
 	Transaction    *Transaction `json:"transaction,omitempty"`
@@ -197,12 +197,12 @@ type Transaction struct {
 	Hash         string     `json:"hash"`
 	CreatedAt    string     `json:"createdAt"`
 	Memo         *string    `json:"memo,omitempty"`
-	Code         int64      `json:"code"`
+	Code         int        `json:"code"`
 	ErrorMessage *string    `json:"errorMessage,omitempty"`
-	GasWanted    int64      `json:"gasWanted"`
-	GasUsed      int64      `json:"gasUsed"`
-	BlockHeight  int64      `json:"blockHeight"`
-	Idx          int64      `json:"idx"`
+	GasWanted    int        `json:"gasWanted"`
+	GasUsed      int        `json:"gasUsed"`
+	BlockHeight  int        `json:"blockHeight"`
+	Idx          int        `json:"idx"`
 	Events       []*Event   `json:"events,omitempty"`
 	Messages     []*Message `json:"messages,omitempty"`
 }
@@ -230,38 +230,38 @@ type Collection struct {
 	Image            string            `json:"image"`
 	Name             string            `json:"name"`
 	Description      string            `json:"description"`
-	TokensCount      *int64            `json:"tokensCount,omitempty"`
-	OwnerTokensCount *int64            `json:"ownerTokensCount,omitempty"`
+	TokensCount      *int              `json:"tokensCount,omitempty"`
+	OwnerTokensCount *int              `json:"ownerTokensCount,omitempty"`
 	Website          *string           `json:"website,omitempty"`
 	CreatedByAddr    string            `json:"createdByAddr"`
 	Blocked          bool              `json:"blocked"`
-	FloorPrice       *int64            `json:"floorPrice,omitempty"`
+	FloorPrice       *int              `json:"floorPrice,omitempty"`
 	CreatedBy        *Address          `json:"createdBy"`
 	ImageObject      *Image            `json:"imageObject,omitempty"`
-	OwnersCount      *int64            `json:"ownersCount,omitempty"`
+	OwnersCount      *int              `json:"ownersCount,omitempty"`
 	Owners           *CollectionOwners `json:"owners"`
 }
 
 type CollectionNode struct {
-	Offset      int64         `json:"offset"`
-	Limit       int64         `json:"limit"`
-	Total       int64         `json:"total"`
+	Offset      int           `json:"offset"`
+	Limit       int           `json:"limit"`
+	Total       int           `json:"total"`
 	Collections []*Collection `json:"collections"`
 }
 
 type CollectionOwner struct {
-	Count int64    `json:"count"`
+	Count int      `json:"count"`
 	Owner *Address `json:"owner"`
 }
 
 type CollectionOwners struct {
-	TotalCount int64              `json:"totalCount"`
+	TotalCount int                `json:"totalCount"`
 	Owners     []*CollectionOwner `json:"owners"`
 }
 
 type CollectionTokenCount struct {
 	CollectionAddr string `json:"collectionAddr"`
-	TokenCount     int64  `json:"tokenCount"`
+	TokenCount     int    `json:"tokenCount"`
 }
 
 type CollectionTrait struct {
@@ -272,9 +272,9 @@ type CollectionTrait struct {
 type CollectionTraitValue struct {
 	Value            string   `json:"value"`
 	RarityPercent    *float64 `json:"rarityPercent,omitempty"`
-	NumTokens        int64    `json:"numTokens"`
-	NumTokensForSale int64    `json:"numTokensForSale"`
-	TraitFloorPrice  *int64   `json:"traitFloorPrice,omitempty"`
+	NumTokens        int      `json:"numTokens"`
+	NumTokensForSale int      `json:"numTokensForSale"`
+	TraitFloorPrice  *int     `json:"traitFloorPrice,omitempty"`
 }
 
 type Contract struct {
@@ -283,7 +283,7 @@ type Contract struct {
 	ContractCodeID   *string `json:"contractCodeId,omitempty"`
 	ContractVersion  *string `json:"contractVersion,omitempty"`
 	ContractLabel    *string `json:"contractLabel,omitempty"`
-	BlockHeight      int64   `json:"blockHeight"`
+	BlockHeight      int     `json:"blockHeight"`
 	CreatedAt        string  `json:"createdAt"`
 	UpdatedAt        string  `json:"updatedAt"`
 	LastErrorAt      *string `json:"lastErrorAt,omitempty"`
@@ -293,9 +293,9 @@ type Contract struct {
 }
 
 type ContractNode struct {
-	Offset    int64       `json:"offset"`
-	Limit     int64       `json:"limit"`
-	Total     int64       `json:"total"`
+	Offset    int         `json:"offset"`
+	Limit     int         `json:"limit"`
+	Total     int         `json:"total"`
 	Contracts []*Contract `json:"contracts"`
 }
 
@@ -306,15 +306,15 @@ type IbcClient struct {
 	Signer              string `json:"signer"`
 	CreatedAt           string `json:"createdAt"`
 	UpdatedAt           string `json:"updatedAt"`
-	BlockHeight         int64  `json:"blockHeight"`
+	BlockHeight         int    `json:"blockHeight"`
 }
 
 type Image struct {
 	URL           string  `json:"url"`
 	ContentType   *string `json:"contentType,omitempty"`
-	ContentLength *int64  `json:"contentLength,omitempty"`
-	Width         *int64  `json:"width,omitempty"`
-	Height        *int64  `json:"height,omitempty"`
+	ContentLength *int    `json:"contentLength,omitempty"`
+	Width         *int    `json:"width,omitempty"`
+	Height        *int    `json:"height,omitempty"`
 }
 
 type Name struct {
@@ -333,9 +333,9 @@ type Name struct {
 }
 
 type NameNode struct {
-	Offset int64   `json:"offset"`
-	Limit  int64   `json:"limit"`
-	Total  int64   `json:"total"`
+	Offset int     `json:"offset"`
+	Limit  int     `json:"limit"`
+	Total  int     `json:"total"`
 	Names  []*Name `json:"names"`
 }
 
@@ -351,9 +351,9 @@ type NameRecord struct {
 }
 
 type OwnedCollectionsNode struct {
-	Offset                     int64                   `json:"offset"`
-	Limit                      int64                   `json:"limit"`
-	Total                      int64                   `json:"total"`
+	Offset                     int                     `json:"offset"`
+	Limit                      int                     `json:"limit"`
+	Total                      int                     `json:"total"`
 	Collections                []*Collection           `json:"collections"`
 	OwnedCollectionsTokenCount []*CollectionTokenCount `json:"ownedCollectionsTokenCount"`
 }
@@ -361,21 +361,21 @@ type OwnedCollectionsNode struct {
 type Sale struct {
 	SaleType       string  `json:"saleType"`
 	TxHash         *string `json:"txHash,omitempty"`
-	BlockHeight    int64   `json:"blockHeight"`
+	BlockHeight    int     `json:"blockHeight"`
 	CollectionAddr string  `json:"collectionAddr"`
 	TokenID        string  `json:"tokenId"`
-	SalePriceStars int64   `json:"salePriceStars"`
+	SalePriceStars int     `json:"salePriceStars"`
 	SalePriceUsd   string  `json:"salePriceUsd"`
 	Seller         *string `json:"seller,omitempty"`
 	Buyer          *string `json:"buyer,omitempty"`
-	RarityOrder    *int64  `json:"rarityOrder,omitempty"`
+	RarityOrder    *int    `json:"rarityOrder,omitempty"`
 	CreatedAt      string  `json:"createdAt"`
 }
 
 type SalesNode struct {
-	Offset int64   `json:"offset"`
-	Limit  int64   `json:"limit"`
-	Total  int64   `json:"total"`
+	Offset int     `json:"offset"`
+	Limit  int     `json:"limit"`
+	Total  int     `json:"total"`
 	Sales  []*Sale `json:"sales"`
 }
 
@@ -383,15 +383,15 @@ type SalesStats struct {
 	TimePeriod    *string `json:"timePeriod,omitempty"`
 	VolumeStars   string  `json:"volumeStars"`
 	VolumeUsd     string  `json:"volumeUsd"`
-	SalesCount    int64   `json:"salesCount"`
+	SalesCount    int     `json:"salesCount"`
 	AvgPriceStars string  `json:"avgPriceStars"`
 	AvgPriceUsd   string  `json:"avgPriceUsd"`
 }
 
 type SalesStatsNode struct {
-	Offset      int64             `json:"offset"`
-	Limit       int64             `json:"limit"`
-	Total       int64             `json:"total"`
+	Offset      int               `json:"offset"`
+	Limit       int               `json:"limit"`
+	Total       int               `json:"total"`
 	SalesStats  []*SalesStats     `json:"salesStats"`
 	StatsTotals *SalesStatsTotals `json:"statsTotals"`
 }
@@ -399,7 +399,7 @@ type SalesStatsNode struct {
 type SalesStatsTotals struct {
 	VolumeStars   string `json:"volumeStars"`
 	VolumeUsd     string `json:"volumeUsd"`
-	SalesCount    int64  `json:"salesCount"`
+	SalesCount    int    `json:"salesCount"`
 	AvgPriceStars string `json:"avgPriceStars"`
 	AvgPriceUsd   string `json:"avgPriceUsd"`
 }
@@ -415,7 +415,7 @@ type Token struct {
 	ForSale                    bool          `json:"forSale"`
 	ImageURL                   *string       `json:"imageUrl,omitempty"`
 	AnimationURL               *string       `json:"animationUrl,omitempty"`
-	RarityOrder                *int64        `json:"rarityOrder,omitempty"`
+	RarityOrder                *int          `json:"rarityOrder,omitempty"`
 	RarityScore                *string       `json:"rarityScore,omitempty"`
 	Price                      *Price        `json:"price,omitempty"`
 	PriceExpiresAt             *string       `json:"priceExpiresAt,omitempty"`
@@ -443,9 +443,9 @@ type Token struct {
 }
 
 type TokenNode struct {
-	Offset int64    `json:"offset"`
-	Limit  int64    `json:"limit"`
-	Total  int64    `json:"total"`
+	Offset int      `json:"offset"`
+	Limit  int      `json:"limit"`
+	Total  int      `json:"total"`
 	Tokens []*Token `json:"tokens"`
 }
 

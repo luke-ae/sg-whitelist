@@ -64,8 +64,6 @@ func (c *Client) SmartQuery(ctx context.Context, contract string, query any, v a
 	base64Query := base64.StdEncoding.EncodeToString(bz)
 	queryUrl := fmt.Sprintf("%s/cosmwasm/wasm/v1/contract/%s/smart/%s", c.baseURL, contract, base64Query)
 
-	slog.Info("base64 encoded", "url", queryUrl)
-
 	req, err := http.NewRequest(http.MethodGet, queryUrl, nil)
 	if err != nil {
 		return err
@@ -96,7 +94,7 @@ type MinterAddrResponse struct {
 }
 
 func (c *Client) FetchMinterAddr(ctx context.Context, contract string) (*MinterAddr, error) {
-	key := fmt.Sprintf("minter_config/%v", contract)
+	key := fmt.Sprintf("minter_addr/%v", contract)
 	value, found := c.cache.Get(key)
 
 	if found {
@@ -106,6 +104,8 @@ func (c *Client) FetchMinterAddr(ctx context.Context, contract string) (*MinterA
 			return v, nil
 		}
 	}
+
+	fmt.Println("cache not hit for", key)
 
 	query := &Queries{
 		Minter: &MinterQuery{},
@@ -117,9 +117,9 @@ func (c *Client) FetchMinterAddr(ctx context.Context, contract string) (*MinterA
 		return nil, err
 	}
 
-	c.cache.SetWithTTL(key, resp.Data, 1, time.Hour*24)
+	c.cache.SetWithTTL(key, resp.Data, 1, time.Minute*5)
 
-	return (*MinterAddr)(&resp.Data), nil
+	return &MinterAddr{MinterAddr: resp.Data.Minter}, nil
 }
 
 type MinterConfigResponse struct {
@@ -149,7 +149,7 @@ type MinterConfig struct {
 }
 
 type WhitelistAddr struct {
-	Whitelist string `json:"whitelist"`
+	WhitelistAddr string `json:"whitelist"`
 }
 
 func (c *Client) FetchMinterConfig(ctx context.Context, contract string) (*WhitelistAddr, error) {
@@ -164,6 +164,8 @@ func (c *Client) FetchMinterConfig(ctx context.Context, contract string) (*White
 		}
 	}
 
+	fmt.Println("cache not hit for", key)
+
 	query := &Queries{
 		Config: &ConfigQuery{},
 	}
@@ -177,7 +179,7 @@ func (c *Client) FetchMinterConfig(ctx context.Context, contract string) (*White
 	c.cache.SetWithTTL(key, resp.Data, 1, time.Minute*5)
 
 	return &WhitelistAddr{
-		Whitelist: resp.Data.Whitelist,
+		WhitelistAddr: resp.Data.Whitelist,
 	}, nil
 }
 
@@ -186,7 +188,7 @@ type IsMember struct {
 }
 
 func (c *Client) FetchIsWhitelistMember(ctx context.Context, contract, address string) (*IsMember, error) {
-	key := fmt.Sprintf("is_member/%v/%v", contract, address)
+	key := fmt.Sprintf("is_member/%s/%s", contract, address)
 	value, found := c.cache.Get(key)
 
 	if found {
@@ -196,6 +198,8 @@ func (c *Client) FetchIsWhitelistMember(ctx context.Context, contract, address s
 			return isMember, nil
 		}
 	}
+
+	fmt.Println("cache not hit for", key)
 
 	query := &WhitelistQueries{
 		HasMember: &WhitelistMemberQuery{
@@ -214,4 +218,12 @@ func (c *Client) FetchIsWhitelistMember(ctx context.Context, contract, address s
 	c.cache.SetWithTTL(key, isMember, 1, time.Minute*5)
 
 	return isMember, nil
+}
+
+func WriteJSON(w http.ResponseWriter, status int, v any) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(status)
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

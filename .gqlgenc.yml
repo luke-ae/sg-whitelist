@@ -5,8 +5,6 @@ client:
   package: gql
   filename: ./gql/client.go # Where should any generated client go?
 models:
-  Int:
-    model: github.com/99designs/gqlgen/graphql.Int64
   Date:
     model: github.com/99designs/gqlgen/graphql.Time
 schema:
@@ -14,5 +12,6 @@ schema:
 query:
   - "./graphql/query/*.graphql" # Where are all the query files located?
 generate:
+  clientV2: true
   clientInterfaceName: "ConstellationsGraphqlClient" # Determine the name of the generated client interface
   structFieldsAlwaysPointers: true # Optional: Always use pointers for struct fields (default: true). [same as gqlgen](https://github.com/99designs/gqlgen/blob/e1ef86e795e738654c98553b325a248c02c8c2f8/docs/content/config.md?plain=1#L73)

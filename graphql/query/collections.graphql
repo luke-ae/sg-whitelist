@@ -1,10 +1,11 @@
-query Collections($offset: Int, $limit: Int) {
-    collections(offset: $offset, limit: $limit) {
-      collections {
-        collectionAddr
-        name
-        image
-      }
+query LatestCollections($offset: Int!, $limit: Int!) {
+  collections(offset: $offset, limit: $limit, sortBy: MINTED_AT_DESC) {
+    collections {
+      collectionAddr
+      name
+      image
+      description
+      mintedAt
     }
   }
-  
+}
