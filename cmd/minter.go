@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/luke-ae/sg-whitelist/gql"
@@ -54,6 +56,7 @@ func (c *GQLClient) WhitelistedCollections(w http.ResponseWriter, r *http.Reques
 					Collection: coll.CollectionAddr,
 					Name:       coll.Name,
 					Image:      coll.Image,
+					MintedAt:   coll.MintedAt,
 				}
 				return
 			}
@@ -65,6 +68,7 @@ func (c *GQLClient) WhitelistedCollections(w http.ResponseWriter, r *http.Reques
 					Collection: coll.CollectionAddr,
 					Name:       coll.Name,
 					Image:      coll.Image,
+					MintedAt:   coll.MintedAt,
 				}
 				return
 			}
@@ -74,6 +78,7 @@ func (c *GQLClient) WhitelistedCollections(w http.ResponseWriter, r *http.Reques
 				Name:       coll.Name,
 				Image:      coll.Image,
 				HasMember:  wlResp.IsMember,
+				MintedAt:   coll.MintedAt,
 			}
 		}(coll)
 	}
@@ -88,5 +93,20 @@ func (c *GQLClient) WhitelistedCollections(w http.ResponseWriter, r *http.Reques
 		members = append(members, m)
 	}
 
+	start := time.Now()
+	sort.Sort(ByDate(members))
+	duration := time.Until(start)
+	fmt.Printf("Sorting took %v\n", duration)
 	WriteJSON(w, http.StatusOK, members)
 }
+
+type ByDate []*MemberResponse
+
+func (a ByDate) Len() int { return len(a) }
+func (a ByDate) Less(i, j int) bool {
+	layout := "2006-01-02T15:04:05.000000Z07:00"
+	date1, _ := time.Parse(layout, *a[i].MintedAt)
+	date2, _ := time.Parse(layout, *a[j].MintedAt)
+	return date1.After(date2)
+}
+func (a ByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }

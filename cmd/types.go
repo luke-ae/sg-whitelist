@@ -20,11 +20,12 @@ type MinterQuery struct {
 }
 
 type MemberResponse struct {
-	Minter     string `json:"minterAddr"`
-	Collection string `json:"collectionAddr"`
-	HasMember  bool   `json:"hasMember"`
-	Name       string `json:"name"`
-	Image      string `json:"image"`
+	Name       string  `json:"name"`
+	Collection string  `json:"collectionAddr"`
+	Minter     string  `json:"minterAddr"`
+	Image      string  `json:"image"`
+	MintedAt   *string `json:"mintedAt"`
+	HasMember  bool    `json:"hasMember"`
 }
 
 type WhitelistQueries struct {
