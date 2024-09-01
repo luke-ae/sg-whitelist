@@ -108,7 +108,7 @@ func (c *Client) FetchMinterAddr(ctx context.Context, contract string) (*MinterA
 	fmt.Println("cache not hit for", key)
 
 	query := &Queries{
-		Minter: &MinterQuery{},
+		Minter: &EmptyQuery{},
 	}
 
 	resp := &MinterAddrResponse{}
@@ -167,7 +167,7 @@ func (c *Client) FetchMinterConfig(ctx context.Context, contract string) (*White
 	fmt.Println("cache not hit for", key)
 
 	query := &Queries{
-		Config: &ConfigQuery{},
+		Config: &EmptyQuery{},
 	}
 
 	resp := &MinterConfigResponse{}

@@ -1,22 +1,19 @@
 package main
 
 type Error struct {
-	Error string
+	Error string `json:"error"`
 }
 
 type Queries struct {
-	Minter *MinterQuery `json:"minter,omitempty"`
-	Config *ConfigQuery `json:"config,omitempty"`
+	Minter *EmptyQuery `json:"minter,omitempty"`
+	Config *EmptyQuery `json:"config,omitempty"`
 }
 
 type MinterAddr struct {
 	MinterAddr string `json:"minterAddr,omitempty"`
 }
 
-type ConfigQuery struct {
-}
-
-type MinterQuery struct {
+type EmptyQuery struct {
 }
 
 type MemberResponse struct {
