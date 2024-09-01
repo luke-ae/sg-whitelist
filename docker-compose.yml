@@ -3,7 +3,7 @@ services:
     image: sg-whitelist:latest 
     container_name: sg-whitelist
     ports:
-      - "42069:42069"
+      - "80:42069"
     env_file:
       - .env
     restart: always
