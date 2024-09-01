@@ -4,6 +4,5 @@ services:
     container_name: sg-whitelist
     ports:
       - "80:42069"
-    env_file:
-      - .env
+    env_file: ".env"
     restart: always
