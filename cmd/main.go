@@ -8,14 +8,9 @@ import (
 
 	"github.com/dgraph-io/ristretto"
 	"github.com/go-chi/chi/v5"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		panic("Error loading .env file")
-	}
 
 	r := chi.NewRouter()
 
